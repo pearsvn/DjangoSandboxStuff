@@ -1,6 +1,4 @@
 from rest_framework import serializers
-import json
-
 from .models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -12,9 +10,11 @@ class ProductSerializer(serializers.ModelSerializer):
             'title',
             'content',
             'price',
+            'user',
             'sale_price',
             'my_discount',
         ]
+        read_only_fields=['user']
 
     def get_my_discount(self, obj):
         return obj.get_discount()
