@@ -8,7 +8,6 @@ from products.serializers import ProductSerializer
 # This file handles the logic, e.g. assign user to product
 
 class ProductViewSet(ModelViewSet):
-    # queryset = Product.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
