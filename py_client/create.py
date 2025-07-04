@@ -1,8 +1,21 @@
 import requests
 import json
+import os
+from dotenv import load_dotenv
 
-endpoint = "http://127.0.0.1:8080/api/"
-post_response = requests.post(endpoint, json={'title': 'The Fourth Item', 'content': 'Fourth Item Content', 'price': 29.99})
+load_dotenv()
+
+endpoint = "http://127.0.0.1:8080/api/products/"
+payload = {
+    'title': 'The Nth Item',
+    'content': 'Nth Item Content',
+    'price': 9.99,
+}
+
+token = os.getenv('API_TOKEN')
+headers = {'Authorization': f'Token {token}'}
+
+post_response = requests.post(endpoint, json=payload)
 
 try:
     response_json = post_response.json()
