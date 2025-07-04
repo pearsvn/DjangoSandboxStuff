@@ -5,11 +5,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+"""
+This file returns all the products assigned to the specified user
+in the username value below.
+"""
 
 endpoint = "http://127.0.0.1:8080/api/products"
 
 # change the second param in below to change user, e.g. <defaultuser>
-username = os.getenv('API_USERNAME', 'defaultuser')
+username = os.getenv('API_USERNAME', 'testuser')
 token = os.getenv(f'{username.upper()}_TOKEN')
 headers = {'Authorization': f'Token {token}'}
 

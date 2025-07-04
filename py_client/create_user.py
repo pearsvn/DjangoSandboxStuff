@@ -2,6 +2,12 @@ import os
 import sys
 import django
 
+"""
+This file is used to create a new user. The API token is generated
+and automatically stored in the .env file. If you haven't already,
+make sure you add your .env file to the .gitignore file.
+"""
+
 # Ensure project root is on Python path so Django modules can be found
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(base_dir)

@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+"""
+This file creates a product assigned to the specified user
+in the username value below.
+"""
+
 endpoint = "http://127.0.0.1:8080/api/products/"
 payload = {
     'title': 'My Item',
