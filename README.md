@@ -1,12 +1,15 @@
 # DjangoSandboxStuff
 
-In this project, I'm using the django-rest-framework to create an API a client can GET, POST, PUT, and PATCH JSON payloads.
-The API is using a [Product model](backend.api.models.py) that describes the contents of the product objects. 
-This schema serves as the table for the products. The current version (04.07.23) lets the client:
-- Create a new product
-- List all existing products
-- Fully / Partially update an existing product
+This project references the course found [here](https://www.youtube.com/watch?v=c708Nf0cHrs). I'm using the django-rest-framework to create an RESTful API.
 
-The next step would be to add a level of authentication. This way, the products will have users assigned to them and the CRUD operations will only work on the products that the user is assigned to. With this implementation, the intention is for:
-- Users to only view / delete / update their assigned products
-- Not be allowed to view / delete / update products not assigned to them / assigned to other users
+To test this project, simply clone this repository to your local, `cd` into `backend` and run
+```shell
+python manage.py runserver 8080
+```
+
+In another terminal, you can call the different requests by doing a `cd` into `py_client` and running one of the files, e.g.
+```shell
+python get_all.py
+```
+
+However, the most reasonable file to run would be `create_user.py` as the requests will all need authentication. Once you've created your user, your API Token will appear in the `.env` file.
