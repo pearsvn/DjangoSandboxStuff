@@ -12,9 +12,9 @@ in the username value below.
 
 endpoint = "http://127.0.0.1:8080/api/products/"
 payload = {
-    'title': 'My Item',
+    'title': 'New Item',
     'content': 'My Content',
-    'price': 119.99,
+    'price': 11.99,
 }
 
 username = os.getenv('API_USERNAME', 'testuser')

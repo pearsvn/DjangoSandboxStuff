@@ -17,7 +17,7 @@ username = os.getenv('API_USERNAME', 'testuser')
 token = os.getenv(f'{username.upper()}_TOKEN')
 headers = {'Authorization': f'Token {token}'}
 
-get_response = requests.get(endpoint, params={'title': 'The Fourth Item'}, headers=headers)
+get_response = requests.get(endpoint, params={'id': 11}, headers=headers)
 
 try:
     response_json = get_response.json()

@@ -11,7 +11,7 @@ to the specified user in the username value below.
 """
 
 #Make sure to replace the id of the item you intend on changing
-id = 11
+id = 10
 endpoint = f"http://127.0.0.1:8080/api/products/{id}/"
 
 # change the second param in below to change user, e.g. <defaultuser>
@@ -20,8 +20,8 @@ token = os.getenv(f'{username.upper()}_TOKEN')
 headers = {'Authorization': f'Token {token}'}
 
 update_data = {
-    "title": "My Item",
-    "content": "My Content",
+    "title": "My New Item",
+    "content": "My New Content",
     "price": "14.99"
 }
 
