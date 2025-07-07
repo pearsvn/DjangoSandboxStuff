@@ -10,5 +10,3 @@ class ProductForm(forms.ModelForm):
             'content',
             'price',
         ]
-
-# Not sure if this file is necessary anymore
