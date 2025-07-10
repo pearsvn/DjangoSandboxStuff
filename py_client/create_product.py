@@ -18,7 +18,7 @@ def create_product():
         'price': 1.99,
     }
 
-    username = os.getenv('API_USERNAME', 'testuser')
+    username = os.getenv('API_USERNAME', 'anotheruser')
     token = os.getenv(f'{username.upper()}_TOKEN')
     headers = {'Authorization': f'Token {token}'}
 
