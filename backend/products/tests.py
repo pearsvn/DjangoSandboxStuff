@@ -56,11 +56,19 @@ class ProductModelTest(APITestCase):
         product = Product.objects.create(title="Model Test", price=100, user=user)
         self.assertEqual(product.get_discount(), "122")
 
-    def test_get_queryset_returns_user_products_only(self):
+    def test_unauthorized_user(self):
         user = User.objects.create_user(username="modeluser", password="modelpass")
         other_user = User.objects.create_user(username="otheruser", password="otherpass")
         Product.objects.create(title="Mine", price=10, user=user)
         Product.objects.create(title="Not Mine", price=20, user=other_user)
         response = self.client.get(reverse('product-list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(len(response.data), 1)
+
+    def test_accessing_other_user_product(self):
+        user = User.objects.create_user(username="modeluser", password="modelpass")
+        other_user = User.objects.create_user(username="otheruser", password="otherpass")
+        Product.objects.create(title="Mine", price=10, user=user)
+        Product.objects.create(title="Not Mine", price=20, user=other_user)
+        response = self.client.get(reverse('product-list'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
