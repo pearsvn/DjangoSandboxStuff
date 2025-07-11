@@ -5,11 +5,21 @@ from rest_framework.exceptions import PermissionDenied
 from products.models import Product
 from products.serializers import ProductSerializer
 from products.filters import UserProductsFilterBackend
+from accounts.permissions import (
+    IsSuperUser,
+    IsOwner,
+    IsAuthenticatedAndNotSuperUser,
+    IsSuperUserOrOwner,
+)
 
 # This file handles the logic, e.g. assign user to product
 
 class ProductViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSuperUser,
+                          IsOwner,
+                          IsAuthenticated,
+                          IsAuthenticatedAndNotSuperUser,
+                          IsSuperUserOrOwner]
     serializer_class = ProductSerializer
     filter_backends = [UserProductsFilterBackend, DjangoFilterBackend]
     filterset_fields = ['id', 'title', 'content', 'price']
