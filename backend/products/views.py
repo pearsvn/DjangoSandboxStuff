@@ -4,17 +4,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from products.models import Product
 from products.serializers import ProductSerializer
+from products.filters import UserProductsFilterBackend
 
 # This file handles the logic, e.g. assign user to product
 
 class ProductViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [UserProductsFilterBackend, DjangoFilterBackend]
     filterset_fields = ['id', 'title', 'content', 'price']
-
-    def get_queryset(self):
-        return Product.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
