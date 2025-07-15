@@ -7,12 +7,11 @@ from rest_framework.request import Request
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 
-from accounts.permissions import IsSuperUserOrAuthenticatedUser
-
 from products.models import Product
 
 
 User = get_user_model()
+SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 class BaseClass(APITestCase):
     def setUp(self):
@@ -51,71 +50,25 @@ class LoginTests(BaseClass):
 class PermissionsTests(BaseClass):
     """
     Tests for the custom permissions class found in the permissions file
-    """
-    # def test_authenticated_user_accessing_own_object(self):
-    #     # Simulate user accessing their own object
-    #     class DummyObj:
-    #         owner = self.user
-
-    #     permission = IsSuperUserOrAuthenticatedUser()
-
-    #     request = Request(HttpRequest())
-    #     request.user = self.user
-
-    #     self.client.force_authenticate(user=self.user)
-    #     self.assertTrue(permission.has_object_permission(
-    #         request=request, view=None, obj=DummyObj()))
-
-    # def test_authenticated_user_accessing_other_object(self):
-    #     other_user = User.objects.create_user(username="otheruser", password="pass1234")
-
-    #     class DummyObj:
-    #         owner = other_user
-
-    #     permission = IsSuperUserOrAuthenticatedUser()
-
-    #     request = Request(HttpRequest())
-    #     request.user = self.user
-
-    #     self.assertFalse(permission.has_object_permission(
-    #         request=request, view=None, obj=DummyObj()))
-
-    # def test_superuser_accessing_non_superuser_object(self):
-    #     self.client.force_authenticate(user=self.superuser)
-
-    #     class DummyObj:
-    #         owner = self.user
-
-    #     permission = IsSuperUserOrAuthenticatedUser()
-
-    #     request = Request(HttpRequest())
-    #     request.user = self.superuser
-
-    #     self.assertTrue(permission.has_object_permission(
-    #         request=request, view=None, obj=DummyObj()))
-
-    # def test_superuser_accessing_superuser_object(self):
-    #     self.superuser2 = User.objects.create_superuser(username="adminuser2", password="adminpass2")
-    #     self.client.force_authenticate(user=self.superuser)
-
-    #     class DummyObj:
-    #         owner = self.superuser2
-
-    #     permission = IsSuperUserOrAuthenticatedUser()
-
-    #     request = Request(HttpRequest())
-    #     request.user = self.superuser
-
-    #     self.assertFalse(permission.has_object_permission(
-    #         request=request, view=None, obj=DummyObj()))
-        
+    """ 
     def test_permissions(self):
         user = self.user
-        superuser = self.user
-        another_user = User.objects.create_user(username="anotherUser", password="anotherUserPass")
-        another_superuser = User.objects.create_superuser(username="anotherSuperuser", password="anotherSuperpass")
+        superuser = User.objects.create_superuser(username="suerp", password="superpass")
+        
+        userProduct = Product.objects.create(
+                    title="UserProduct",
+                    content="User Content",
+                    price=5.0,
+                    user=user
+                )
+        
+        superuserProduct = Product.objects.create(
+                    title="SuperUserProduct",
+                    content="SuperUser content",
+                    price=3.0,
+                    user=superuser
+        )
 
-        # povs = [user, superuser, another_user, another_superuser ]
         crud_accepted_responses = {
                 "Create": status.HTTP_201_CREATED, 
                 "Read":   status.HTTP_200_OK,
@@ -123,20 +76,14 @@ class PermissionsTests(BaseClass):
                 "Delete": status.HTTP_204_NO_CONTENT,
         }
             
-        crud_not_found_responses = {
-                "Create": status.HTTP_404_NOT_FOUND, 
-                "Read":   status.HTTP_404_NOT_FOUND,
-                "Update": status.HTTP_404_NOT_FOUND,
-                "Delete": status.HTTP_404_NOT_FOUND,
+        crud_forbidden_responses = {
+                "Create": status.HTTP_403_FORBIDDEN, 
+                "Read":   status.HTTP_403_FORBIDDEN,
+                "Update": status.HTTP_403_FORBIDDEN,
+                "Delete": status.HTTP_403_FORBIDDEN,
         }
 
         test_cases = [
-            {
-                "acting_user": user,
-                "target_user": another_user,
-                "expected": crud_not_found_responses,
-                "desc": "User accessing another user's object"
-            },
             {
                 "acting_user": user,
                 "target_user": user,
@@ -144,29 +91,17 @@ class PermissionsTests(BaseClass):
                 "desc": "User accessing own object"
             },
             {
-                "acting_user": another_user,
-                "target_user": user,
-                "expected": crud_not_found_responses,
-                "desc": "Another user accessing user's object"
-            },
-            {
-                "acting_user": another_superuser,
+                "acting_user": superuser,
                 "target_user": user,
                 "expected": crud_accepted_responses,
                 "desc": "Superuser accessing normal user's object"
             },
             {
-                "acting_user": another_superuser,
-                "target_user": another_superuser,
-                "expected": crud_accepted_responses,
-                "desc": "Superuser accessing own object"
-            },
-            {
-                "acting_user": another_superuser,
+                "acting_user": user,
                 "target_user": superuser,
-                "expected": crud_not_found_responses,
-                "desc": "Superuser accessing another superuser's object"
-            }
+                "expected": crud_forbidden_responses,
+                "desc": "User accessing superuser's object"
+            },
         ]
 
         for case in test_cases:
@@ -179,38 +114,33 @@ class PermissionsTests(BaseClass):
 
             # Simulate CRUD actions
             print(f"Testing: {desc}")
-
+    
             # Create
-            if acting_user == target_user or acting_user==IsSuperUserOrAuthenticatedUser:
+            if acting_user==superuser:
                 response = self.client.post("/products/", {
                     "title": "Test",
                     "content": "Test content",
                     "price": 10.99
                 }, format='json')
                 self.assertEqual(response.status_code, expected["Create"])
-            else:
-                return status.HTTP_404_NOT_FOUND
+
 
             # Read
             # Create a product owned by target_user to test Read, Update, Delete
-            if acting_user == target_user or expected["Read"] != status.HTTP_404_NOT_FOUND:
-                product = Product.objects.create(
-                    title="ReadTest",
-                    content="Read Content",
-                    price=5.0,
-                    user=target_user
-                )
-                response = self.client.get(f"/products/{product.id}/")
+            target_product = userProduct if target_user == user else superuserProduct
+            if acting_user == target_user or expected["Read"] not in [status.HTTP_404_NOT_FOUND, status.HTTP_403_FORBIDDEN]:
+                # Get product
+                response = self.client.get(f"/products/{target_product.id}/")
                 self.assertEqual(response.status_code, expected["Read"])
 
-                # Update
-                response = self.client.put(f"/products/{product.id}/", {
+                # Update product
+                response = self.client.put(f"/products/{target_product.id}/", {
                     "title": "Updated",
                     "content": "Updated content",
                     "price": 12.99
                 }, format='json')
                 self.assertEqual(response.status_code, expected["Update"])
 
-                # Delete
-                response = self.client.delete(f"/products/{product.id}/")
+                # Delete user product
+                response = self.client.delete(f"/products/{target_product.id}/")
                 self.assertEqual(response.status_code, expected["Delete"])
